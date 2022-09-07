@@ -1,0 +1,73 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <math.h>
+
+int bitcount = 0;
+
+int deterlgn(int *a, int low, int high, int x);
+
+int main()
+{
+    int i;
+    FILE* fdeterlgn; 
+    
+    fdeterlgn = fopen("deterlgn.dat", "w");
+    
+    srand(time(NULL));
+    for(i = 1000; i <= 100000; i=i+1000){
+        
+        int *a /* this is the array */;
+        int x, j /* x is the search item */;
+        int y;
+        
+        a = (int*) malloc(i * sizeof(int));
+        
+        for(j = 0; j < i; j++)
+            a[j] = j+1;
+        
+        x = a[i-1]; 
+        
+        y = deterlgn(a, 0, i-1, x);
+        fprintf(fdeterlgn, "(%d, %d), ", i, bitcount);
+        bitcount = 0;
+        
+        
+    }
+    
+    fclose(fdeterlgn);
+
+}
+
+int deterlgn(int *a, int low, int high, int x)
+{
+    
+    if(high-low+1==1)
+        return (a[low] == x) ? 1 : 0;
+    
+    int k, mid;
+    
+    bitcount++;
+    k = rand() % 2;
+    mid = (low+high)/2;
+    
+        if(k==0){
+            if(deterlgn(a, low, mid, x))
+                return 1;
+            
+            if(deterlgn(a, mid+1, high, x))
+                return 1;
+            
+            return 0;
+        }
+        
+        if(k==1){
+            if(deterlgn(a, mid+1, high, x))
+                return 1;
+            
+            if(deterlgn(a, low, mid, x))
+                return 1;
+            
+            return 0;
+        }
+}
