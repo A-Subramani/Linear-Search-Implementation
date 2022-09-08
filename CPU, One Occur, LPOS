@@ -1,0 +1,188 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <math.h>
+
+int compcount = 0;
+
+int deter0(int *a, int low, int high, int x);
+int deter1(int *a, int low, int high, int x);
+int deter2(int *a, int low, int high, int x);
+int deterlgn(int *a, int low, int high, int x);
+void shuffle(int *array, size_t n);
+
+int main()
+{
+    int i;
+    FILE *fdeter0, *fdeter1, *fdeter2, *fdeterlgn;
+    
+    fdeter0 = fopen("deter0.dat", "w");
+    fdeter1 = fopen("deter1.dat", "w");
+    fdeter2 = fopen("deter2.dat", "w");
+    fdeterlgn = fopen("deterlgn.dat", "w");
+    
+    srand(time(NULL));
+    for(i = 1000; i <= 1000000; i=i+1000){
+        
+        int *a;
+        int j;
+        int x;
+        int k, y;
+        
+        a = (int*) malloc(i * sizeof(int));
+        
+        for(j = 0; j < i; j++)
+            a[j] = j+1;
+        
+        x = a[i-1];
+        
+        clock_t start, end;
+        double TIME;
+        
+        start = clock();
+        y = deter0(a, 0, i-1, x);
+        end = clock();
+        TIME = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(fdeter0, "(%d, %f), ", i, TIME);
+        compcount = 0;
+        
+        start = clock();
+        y = deter1(a, 0, i-1, x);
+        end = clock();
+        TIME = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(fdeter1, "(%d, %f), ", i, TIME);
+        compcount = 0;
+        
+        start = clock();
+        y = deter2(a, 0, i-1, x);
+        end = clock();
+        TIME = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(fdeter2, "(%d, %f), ", i, TIME);
+        compcount = 0;
+        
+        start = clock();
+        y = deterlgn(a, 0, i-1, x);
+        end = clock();
+        TIME = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(fdeterlgn, "(%d, %f), ", i, TIME);
+        compcount = 0;
+        
+    }
+
+    fclose(fdeter0);
+    fclose(fdeter1);
+    fclose(fdeter2);
+    fclose(fdeterlgn);
+}
+
+int deter0(int *a, int low, int high, int x) /* this is the deterministic algorithm */
+{
+    
+    int i;
+        for(i = low; i <= high; i++){
+            compcount++;
+            if(a[i] == x)
+                return 1;
+        }
+        
+        return 0;
+}
+int deter1(int *a, int low, int high, int x) /* this is Algorithm A.2 */
+{
+    
+    if(high-low+1==1){
+        compcount++;
+        return (a[low] == x) ? 1 : 0;
+    }
+    
+    int k, mid;
+    
+    k = rand() % 2;
+    mid = (low+high)/2;
+    
+        if(k==0){
+            if(deter0(a, low, mid, x))
+                return 1;
+            
+            if(deter0(a, mid+1, high, x))
+                return 1;
+            
+            return 0;
+        }
+        
+        if(k==1){
+            if(deter0(a, mid+1, high, x))
+                return 1;
+            
+            if(deter0(a, low, mid, x))
+                return 1;
+            
+            return 0;
+        }
+}
+int deter2(int *a, int low, int high, int x) /* this is Algorithm A.3 */
+{
+    
+    if(high-low+1==1){
+        compcount++;
+        return (a[low] == x) ? 1 : 0;
+    }
+    
+    int k, mid;
+    
+    k = rand() % 2;
+    mid = (low+high)/2;
+    
+        if(k==0){
+            if(deter1(a, low, mid, x))
+                return 1;
+            
+            if(deter1(a, mid+1, high, x))
+                return 1;
+            
+            return 0;
+        }
+        
+        if(k==1){
+            if(deter1(a, mid+1, high, x))
+                return 1;
+            
+            if(deter1(a, low, mid, x))
+                return 1;
+            
+            return 0;
+        }
+}
+int deterlgn(int *a, int low, int high, int x) /* this is Algorithm A.4 */
+{
+    
+    if(high-low+1==1){
+        compcount++;
+        return (a[low] == x) ? 1 : 0;
+    }
+    
+    int k, mid;
+    
+    k = rand() % 2;
+    mid = (low+high)/2;
+    
+        if(k==0){
+            if(deterlgn(a, low, mid, x))
+                return 1;
+            
+            if(deterlgn(a, mid+1, high, x))
+                return 1;
+            
+            return 0;
+        }
+        
+        if(k==1){
+            if(deterlgn(a, mid+1, high, x))
+                return 1;
+            
+            if(deterlgn(a, low, mid, x))
+                return 1;
+            
+            return 0;
+        }
+}
